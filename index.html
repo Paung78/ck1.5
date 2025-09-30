@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VIP Mod Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Orbitron', sans-serif;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0c0c0c, #1a1a1a);
+      color: #fff;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -2;
+    }
+
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.4);
+      z-index: -1;
+    }
+
+    .credit-bar {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 5px 20px;
+      border-radius: 30px;
+      overflow: hidden;
+      white-space: nowrap;
+      width: auto;
+      animation: fadeIn 2s ease forwards;
+    }
+
+    .credit-text {
+      display: inline-block;
+      animation: scrollLeft 8s linear infinite;
+      color: #00ffff;
+      font-size: 0.9em;
+      letter-spacing: 1.2px;
+    }
+
+    @keyframes scrollLeft {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    h1 {
+      position: absolute;
+      top: 20px;
+      text-align: center;
+      font-size: 2.8em;
+      animation: slidein 1.5s ease-in-out;
+    }
+
+    @keyframes slidein {
+      from { transform: translateY(-40px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid #0ff;
+      color: #fff;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    button:hover {
+      background: #0ff;
+      color: #000;
+    }
+
+    #timerBox {
+      display: none;
+      position: fixed;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid #0ff;
+      border-radius: 20px;
+      padding: 25px;
+      width: 360px;
+      height: 310px;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      z-index: 10;
+    }
+
+    #timerBox h3 {
+      font-size: 1.8em;
+      color: #0ff;
+    }
+
+    #period1m, #timer1m {
+      font-family: monospace;
+      font-size: 1.3em;
+      color: #0ff;
+      margin: 10px 0;
+    }
+
+    #randomWord {
+      font-size: 2em;
+      color: #f00;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    #closeButton {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 1.2em;
+      background: none;
+      border: none;
+      color: #f00;
+      cursor: pointer;
+    }
+
+    #loginPage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 35px;
+      border-radius: 20px;
+      border: 2px solid #0ff;
+      backdrop-filter: blur(10px);
+    }
+
+    #loginPage h2 {
+      font-size: 2em;
+      color: #0ff;
+    }
+
+    #keyInput {
+      padding: 10px;
+      font-size: 1em;
+      width: 220px;
+      text-align: center;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border: 2px solid #0ff;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    #errorMessage {
+      margin-top: 10px;
+      color: #f00;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="matrix"></canvas>
+  <div id="overlay"></div>
+
+  <div class="credit-bar">
+    <div class="credit-text">✦ CRD BY PYAUNGGYI ✦</div>
+  </div>
+
+  <div id="loginPage">
+    <h2>Enter Paid Key</h2>
+    <input type="text" id="keyInput" placeholder="Enter Paid Key" />
+    <button onclick="checkKey()">Submit</button>
+    <div id="errorMessage">Please enter correct key</div>
+  </div>
+
+  <h1 style="display: none;">TRX AI SERVER RUN</h1>
+  <button style="display: none;" onclick="toggleTimerBox()">Start Hack</button>
+
+  <div id="timerBox">
+    <button id="closeButton" onclick="toggleTimerBox()">X</button>
+    <h3>VIP PANEL</h3>
+    <div id="period1m"></div>
+    <div id="timer1m"></div>
+    <div id="randomWord"></div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+
+    const chars = '01TRXAI';
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function drawMatrix() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#0ff';
+      ctx.font = fontSize + 'px monospace';
+      drops.forEach((y, i) => {
+        const text = chars.charAt(Math.floor(Math.random() * chars.length));
+        ctx.fillText(text, i * fontSize, y * fontSize);
+        if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      });
+    }
+
+    setInterval(drawMatrix, 33);
+
+    function checkKey() {
+      const keyInput = document.getElementById('keyInput').value;
+      const errorMessage = document.getElementById('errorMessage');
+      if (keyInput === 'Premium') {
+        document.getElementById('loginPage').style.display = 'none';
+        document.querySelector('h1').style.display = 'block';
+        document.querySelector('button[onclick="toggleTimerBox()"]').style.display = 'block';
+        errorMessage.style.display = 'none';
+      } else {
+        errorMessage.style.display = 'block';
+      }
+    }
+
+    let timerInterval = null;
+    function toggleTimerBox() {
+      const timerBox = document.getElementById('timerBox');
+      if (timerBox.style.display === 'none') {
+        timerBox.style.display = 'block';
+        const centerX = (window.innerWidth - timerBox.offsetWidth) / 2;
+        const centerY = (window.innerHeight - timerBox.offsetHeight) / 2;
+        timerBox.style.left = centerX + 'px';
+        timerBox.style.top = centerY + 'px';
+        if (!timerInterval) startTimer();
+      } else {
+        timerBox.style.display = 'none';
+      }
+    }
+
+    function startTimer() {
+      let lastMinute = -1;
+      timerInterval = setInterval(() => {
+        const now = new Date();
+        const seconds = now.getUTCSeconds();
+        const remainingSeconds = 60 - seconds;
+        const minutes = now.getUTCMinutes();
+        const hours = now.getUTCHours();
+        const totalMinutes = hours * 60 + minutes;
+
+        if (seconds === 0 && lastMinute !== minutes) {
+          const words = ['Big', 'Small'];
+          document.getElementById('randomWord').textContent = words[Math.floor(Math.random() * 2)];
+          lastMinute = minutes;
+        }
+
+        const year = now.getUTCFullYear();
+        const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(now.getUTCDate()).padStart(2, '0');
+        const dateStr = `${year}${month}${day}`;
+        const periodNumber = dateStr + '1000' + String(10001 + totalMinutes);
+
+        document.getElementById('period1m').textContent = 'PERIOD NO: ' + periodNumber;
+        document.getElementById('timer1m').textContent = `SECONDS LEFT: ${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+      }, 1000);
+    }
+  </script>
+</body>
+</html>

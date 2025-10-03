@@ -2,293 +2,701 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VIP Mod Panel</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Lottery Tricks Ai Predition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
-    body {
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #7c3aed;
+      --accent: #10b981;
+      --text: #1f2937;
+      --text-light: #6b7280;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e5e7eb;
+    }
+    
+    * {
+      box-sizing: border-box;
       margin: 0;
-      height: 100vh;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      -webkit-text-size-adjust: 100%;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       display: flex;
       justify-content: center;
       align-items: center;
-      font-family: 'Orbitron', sans-serif;
+      min-height: 100vh;
+      padding: 16px;
       overflow: hidden;
-      background: linear-gradient(135deg, #0c0c0c, #1a1a1a);
-      color: #fff;
+      position: relative;
     }
 
-    canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: -2;
-    }
-
-    #overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
+    /* Key Access Container */
+    .access-container {
       width: 100%;
-      height: 100%;
-      backdrop-filter: blur(10px);
-      background: rgba(0, 0, 0, 0.4);
-      z-index: -1;
+      max-width: 320px;
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .access-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .access-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .access-logo {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 24px;
+      color: white;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .access-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .access-subtitle {
+      font-size: 13px;
+      color: var(--text-light);
+      font-weight: 400;
+    }
+
+    .access-form {
+      margin-bottom: 20px;
+    }
+
+    .access-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .access-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 16px;
+      background: var(--bg);
+      color: var(--text);
+      text-align: center;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .access-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .access-button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+      margin-top: 8px;
+    }
+
+    .access-button:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    }
+
+    .access-timer {
+      text-align: center;
+      margin: 16px 0;
+      padding: 12px;
+      background: var(--bg);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-light);
+    }
+
+    .access-success {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      background: rgba(16, 185, 129, 0.05);
+      border-radius: 12px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      margin-top: 16px;
+    }
+
+    .success-icon {
+      font-size: 32px;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .access-footer {
+      text-align: center;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      color: var(--text-light);
+      font-size: 11px;
+    }
+
+    /* VIP Panel */
+    .vip-panel {
+      width: 100%;
+      max-width: 320px;
+      background: var(--card);
+      border-radius: 16px;
+      padding: 20px 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--border);
+      position: relative;
+      display: none;
+    }
+
+    .panel-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .panel-logo {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 20px;
+      color: white;
+    }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .panel-subtitle {
+      font-size: 12px;
+      color: var(--text-light);
+    }
+
+    .panel-display {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .time-display {
+      font-family: 'Inter', monospace;
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      color: var(--primary);
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+
+    .period-display {
+      font-size: 11px;
+      text-align: center;
+      color: var(--text-light);
+      margin-bottom: 12px;
+    }
+
+    .countdown-timer {
+      font-size: 12px;
+      text-align: center;
+      color: var(--text-light);
+      padding: 10px;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin: 12px 0;
+    }
+
+    .prediction-display {
+      background: white;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 12px 0;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .prediction-label {
+      position: absolute;
+      top: -6px;
+      left: 12px;
+      background: var(--card);
+      padding: 0 6px;
+      font-size: 10px;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .prediction-result {
+      font-family: 'Inter', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .prediction-big {
+      color: var(--accent);
+      background: rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .prediction-small {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.05);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .panel-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .stat-value {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .stat-big {
+      color: var(--accent);
+    }
+
+    .stat-small {
+      color: #ef4444;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-light);
+      text-transform: uppercase;
+    }
+
+    .back-button {
+      width: 100%;
+      padding: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+      margin-top: 8px;
+    }
+
+    .back-button:active {
+      background: var(--border);
     }
 
     .credit-bar {
       position: fixed;
-      bottom: 10px;
+      bottom: 12px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.05);
-      padding: 5px 20px;
-      border-radius: 30px;
-      overflow: hidden;
+      background: var(--card);
+      padding: 6px 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border);
+      font-size: 10px;
+      color: var(--text-light);
       white-space: nowrap;
-      width: auto;
-      animation: fadeIn 2s ease forwards;
     }
 
-    .credit-text {
-      display: inline-block;
-      animation: scrollLeft 8s linear infinite;
-      color: #00ffff;
-      font-size: 0.9em;
-      letter-spacing: 1.2px;
-    }
-
-    @keyframes scrollLeft {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    h1 {
-      position: absolute;
-      top: 20px;
-      text-align: center;
-      font-size: 2.8em;
-      animation: slidein 1.5s ease-in-out;
-    }
-
-    @keyframes slidein {
-      from { transform: translateY(-40px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    button {
-      padding: 15px 30px;
-      font-size: 1.2em;
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid #0ff;
-      color: #fff;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-family: 'Orbitron', sans-serif;
-    }
-
-    button:hover {
-      background: #0ff;
-      color: #000;
-    }
-
-    #timerBox {
-      display: none;
-      position: fixed;
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid #0ff;
-      border-radius: 20px;
-      padding: 25px;
-      width: 360px;
-      height: 310px;
-      text-align: center;
-      backdrop-filter: blur(12px);
-      z-index: 10;
-    }
-
-    #timerBox h3 {
-      font-size: 1.8em;
-      color: #0ff;
-    }
-
-    #period1m, #timer1m {
-      font-family: monospace;
-      font-size: 1.3em;
-      color: #0ff;
-      margin: 10px 0;
-    }
-
-    #randomWord {
-      font-size: 2em;
-      color: #f00;
-      animation: pulse 1s infinite;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-
-    #closeButton {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 1.2em;
-      background: none;
-      border: none;
-      color: #f00;
-      cursor: pointer;
-    }
-
-    #loginPage {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 35px;
-      border-radius: 20px;
-      border: 2px solid #0ff;
-      backdrop-filter: blur(10px);
-    }
-
-    #loginPage h2 {
-      font-size: 2em;
-      color: #0ff;
-    }
-
-    #keyInput {
-      padding: 10px;
-      font-size: 1em;
-      width: 220px;
-      text-align: center;
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-      border: 2px solid #0ff;
-      border-radius: 8px;
-      margin-top: 15px;
-      font-family: 'Orbitron', sans-serif;
-    }
-
-    #errorMessage {
-      margin-top: 10px;
-      color: #f00;
-      display: none;
+    /* Very Small Phones */
+    @media (max-width: 280px) {
+      .access-container, .vip-panel {
+        padding: 20px 12px;
+        max-width: 260px;
+      }
+      
+      .access-logo {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+      }
+      
+      .access-title {
+        font-size: 18px;
+      }
+      
+      .time-display {
+        font-size: 20px;
+      }
+      
+      .prediction-result {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
 <body>
-  <canvas id="matrix"></canvas>
-  <div id="overlay"></div>
+  <!-- Key Access Container -->
+  <div id="access-container" class="access-container">
+    <div class="access-badge">PREMIUM</div>
+    
+    <div class="access-header">
+      <div class="access-logo">
+        <i class="fas fa-key"></i>
+      </div>
+      <h1 class="access-title">Lottery Tricks Ai Predition</h1>
+      <div class="access-subtitle">Enter your premium key</div>
+    </div>
+    
+    <div class="access-form">
+      <label class="access-label">Access Key</label>
+      <input type="text" id="keyInput" class="access-input" placeholder="Enter access key">
+    </div>
+    
+    <button class="access-button" onclick="activateKey()">
+      <i class="fas fa-unlock"></i> Activate Access
+    </button>
+    
+    <div id="access-timer" class="access-timer"></div>
+    
+    <div id="access-success" class="access-success">
+      <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h3 style="margin-bottom: 8px; color: var(--accent); font-size: 14px;">Access Granted</h3>
+      <p style="color: var(--text-light); margin-bottom: 12px; font-size: 12px;">VIP features unlocked</p>
+      <button class="access-button" onclick="showVipPanel()" style="background: linear-gradient(135deg, var(--accent), #059669);">
+        <i class="fas fa-rocket"></i> Open VIP Panel
+      </button>
+    </div>
+    
+    <div class="access-footer">
+      System Access • Credits by Pyaunggyi
+    </div>
+  </div>
 
+  <!-- VIP Panel -->
+  <div id="vip-panel" class="vip-panel">
+    <div class="access-badge">ACTIVE</div>
+    
+    <div class="panel-header">
+      <div class="panel-logo">
+        <i class="fas fa-crown"></i>
+      </div>
+      <h1 class="panel-title">l</h1>
+      <div class="panel-subtitle">Live Prediction System</div>
+    </div>
+    
+    <div class="panel-display">
+      <div class="time-display" id="clock">--:--:--</div>
+      <div class="period-display" id="period">Period: --------</div>
+      
+      <div class="countdown-timer" id="timer">
+        <i class="fas fa-clock">Lottery Tricks Ai Predition</i> Next: <span id="countdown">30s</span>
+      </div>
+      
+      <div class="prediction-display">
+        <div class="prediction-label">Prediction</div>
+        <div class="prediction-result" id="prediction-result">--</div>
+      </div>
+      
+      <div class="panel-stats">
+        <div class="stat-card">
+          <div class="stat-value stat-big" id="big-count">0</div>
+          <div class="stat-label">Big</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value stat-small" id="small-count">0</div>
+          <div class="stat-label">Small</div>
+        </div>
+      </div>
+    </div>
+    
+    <button class="back-button" onclick="showAccessContainer()">
+      <i class="fas fa-arrow-left"></i> Back to Access
+    </button>
+  </div>
+
+  <!-- Credit Bar -->
   <div class="credit-bar">
-    <div class="credit-text">✦ CRD BY PYAUNGGYI ✦</div>
-  </div>
-
-  <div id="loginPage">
-    <h2>Enter Paid Key</h2>
-    <input type="text" id="keyInput" placeholder="Enter Paid Key" />
-    <button onclick="checkKey()">Submit</button>
-    <div id="errorMessage">Please enter correct key</div>
-  </div>
-
-  <h1 style="display: none;">TRX AI SERVER RUN</h1>
-  <button style="display: none;" onclick="toggleTimerBox()">Start Hack</button>
-
-  <div id="timerBox">
-    <button id="closeButton" onclick="toggleTimerBox()">X</button>
-    <h3>VIP PANEL</h3>
-    <div id="period1m"></div>
-    <div id="timer1m"></div>
-    <div id="randomWord"></div>
+    VIP System • CRD BY PYAUNGGYI
   </div>
 
   <script>
-    const canvas = document.getElementById('matrix');
-    const ctx = canvas.getContext('2d');
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAy3QvFmhKiOX38MZiINfZq2yYXGhb7uL8",
+      authDomain: "ck-adm.firebaseapp.com",
+      databaseURL: "https://ck-adm-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "ck-adm",
+      storageBucket: "ck-adm.appspot.com",
+      messagingSenderId: "192822942347",
+      appId: "1:192822942347:web:f27eee393e16c84544528e"
+    };
 
-    const chars = '01TRXAI';
-    const fontSize = 16;
-    const columns = canvas.width / fontSize;
-    const drops = Array(Math.floor(columns)).fill(1);
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    function drawMatrix() {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#0ff';
-      ctx.font = fontSize + 'px monospace';
-      drops.forEach((y, i) => {
-        const text = chars.charAt(Math.floor(Math.random() * chars.length));
-        ctx.fillText(text, i * fontSize, y * fontSize);
-        if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
+    // Global Variables
+    let expireTime = parseInt(localStorage.getItem('expireTime')) || 0;
+    let timerInterval;
+    let vipInterval;
+    let bigCount = 0;
+    let smallCount = 0;
+
+    // Initialize
+    window.onload = function() {
+      if (expireTime && Date.now() < expireTime) {
+        document.getElementById('access-success').style.display = 'block';
+        startSession();
+      } else {
+        document.getElementById('access-container').style.display = 'block';
+        localStorage.removeItem('expireTime');
+      }
+    };
+
+    // Key Activation Functions
+    function activateKey() {
+      const key = document.getElementById('keyInput').value.trim().toUpperCase();
+      if (!key) {
+        alert("Please enter an access key");
+        return;
+      }
+
+      const btn = document.querySelector('.access-button');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+      btn.disabled = true;
+
+      db.ref('keys/' + key).once('value').then(snapshot => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          if (data.used) {
+            alert("This key is already used!");
+            return;
+          }
+          
+          const extraTime = data.duration * 60 * 1000;
+          expireTime = Math.max(Date.now(), expireTime) + extraTime;
+          localStorage.setItem('expireTime', expireTime);
+          
+          db.ref('keys/' + key).update({ used: true });
+          
+          document.getElementById('access-success').style.display = 'block';
+          alert(`Access Activated! Added ${data.duration} minutes`);
+          startSession();
+        } else {
+          alert("Invalid Key");
+        }
+      }).catch(error => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        alert("Connection error. Please try again.");
+        console.error(error);
       });
     }
 
-    setInterval(drawMatrix, 33);
-
-    function checkKey() {
-      const keyInput = document.getElementById('keyInput').value;
-      const errorMessage = document.getElementById('errorMessage');
-      if (keyInput === 'Premium') {
-        document.getElementById('loginPage').style.display = 'none';
-        document.querySelector('h1').style.display = 'block';
-        document.querySelector('button[onclick="toggleTimerBox()"]').style.display = 'block';
-        errorMessage.style.display = 'none';
-      } else {
-        errorMessage.style.display = 'block';
-      }
+    function startSession() {
+      if (timerInterval) clearInterval(timerInterval);
+      updateTimer();
+      timerInterval = setInterval(updateTimer, 1000);
     }
 
-    let timerInterval = null;
-    function toggleTimerBox() {
-      const timerBox = document.getElementById('timerBox');
-      if (timerBox.style.display === 'none') {
-        timerBox.style.display = 'block';
-        const centerX = (window.innerWidth - timerBox.offsetWidth) / 2;
-        const centerY = (window.innerHeight - timerBox.offsetHeight) / 2;
-        timerBox.style.left = centerX + 'px';
-        timerBox.style.top = centerY + 'px';
-        if (!timerInterval) startTimer();
-      } else {
-        timerBox.style.display = 'none';
+    function updateTimer() {
+      const now = Date.now();
+      const remaining = expireTime - now;
+      
+      if (remaining <= 0) {
+        clearInterval(timerInterval);
+        clearInterval(vipInterval);
+        document.getElementById('access-timer').textContent = "Access expired";
+        document.getElementById('access-success').style.display = 'none';
+        document.getElementById('vip-panel').style.display = 'none';
+        document.getElementById('access-container').style.display = 'block';
+        localStorage.removeItem('expireTime');
+        return;
       }
+      
+      const hours = Math.floor(remaining / (1000 * 60 * 60));
+      const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+      
+      document.getElementById('access-timer').textContent = `Access: ${hours}h ${minutes}m ${seconds}s`;
     }
 
-    function startTimer() {
-      let lastMinute = -1;
-      timerInterval = setInterval(() => {
+    function showVipPanel() {
+      document.getElementById('access-container').style.display = 'none';
+      document.getElementById('vip-panel').style.display = 'block';
+      startVipSystem();
+    }
+
+    function showAccessContainer() {
+      document.getElementById('vip-panel').style.display = 'none';
+      document.getElementById('access-container').style.display = 'block';
+      clearInterval(vipInterval);
+    }
+
+    // VIP System
+    function startVipSystem() {
+      const patternString = `BIG SMALL BIG SMALL BIG BIG BIG SMALL SMALL BIG BIG SMALL BIG SMALL SMALL SMALL BIG SMALL BIG BIG BIG SMALL BIG BIG SMALL BIG BIG BIG BIG SMALL BIG SMALL SMALL BIG SMALL BIG BIG SMALL BIG SMALL BIG SMALL SMALL BIG BIG SMALL`;
+      const results = patternString.split(" ");
+      let lastPeriodIndex = -1;
+
+      const pad = (n, w = 2) => String(n).padStart(w, '0');
+      
+      const getMMTime = () => {
         const now = new Date();
-        const seconds = now.getUTCSeconds();
-        const remainingSeconds = 60 - seconds;
-        const minutes = now.getUTCMinutes();
-        const hours = now.getUTCHours();
-        const totalMinutes = hours * 60 + minutes;
+        const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+        return new Date(utc + 6.5 * 60 * 60 * 1000);
+      };
 
-        if (seconds === 0 && lastMinute !== minutes) {
-          const words = ['Big', 'Small'];
-          document.getElementById('randomWord').textContent = words[Math.floor(Math.random() * 2)];
-          lastMinute = minutes;
+      const REFERENCE_TIME_MM = "2025-06-19T16:38:30+06:30";
+      const REFERENCE_SUFFIX = 51217;
+      
+      const baseIndexCalc = () => {
+        const refDate = new Date(REFERENCE_TIME_MM);
+        const start = new Date(refDate);
+        start.setHours(0, 0, 0, 0);
+        const refSecs = Math.floor((refDate - start) / 1000);
+        return REFERENCE_SUFFIX - Math.floor(refSecs / 30);
+      };
+      
+      const BASE_INDEX = baseIndexCalc() + 1;
+
+      function buildPeriod(now) {
+        const y = now.getFullYear();
+        const m = pad(now.getMonth() + 1);
+        const d = pad(now.getDate());
+        const start = new Date(now);
+        start.setHours(0, 0, 0, 0);
+        const secs = Math.floor((now - start) / 1000);
+        const pIndex = Math.floor(secs / 30);
+        const suffix = pad(BASE_INDEX + pIndex, 5);
+        const period = `${y}${m}${d}1000${suffix}`;
+        document.getElementById('period').textContent = `Period: ${period}`;
+
+        if (pIndex !== lastPeriodIndex) {
+          lastPeriodIndex = pIndex;
+          const outcome = results[pIndex % results.length];
+          const resultEl = document.getElementById('prediction-result');
+          
+          // Update counts
+          if (outcome === 'BIG') {
+            bigCount++;
+            document.getElementById('big-count').textContent = bigCount;
+          } else {
+            smallCount++;
+            document.getElementById('small-count').textContent = smallCount;
+          }
+          
+          resultEl.textContent = outcome;
+          resultEl.className = `prediction-result prediction-${outcome.toLowerCase()}`;
         }
+      }
 
-        const year = now.getUTCFullYear();
-        const month = String(now.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(now.getUTCDate()).padStart(2, '0');
-        const dateStr = `${year}${month}${day}`;
-        const periodNumber = dateStr + '1000' + String(10001 + totalMinutes);
+      function vipTick() {
+        const now = getMMTime();
+        const timeStr = now.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false
+        });
+        
+        document.getElementById('clock').textContent = timeStr;
+        const secs = now.getSeconds();
+        const remain = 30 - (secs % 30);
+        
+        document.getElementById('countdown').textContent = `${pad(remain)}s`;
+        
+        if (secs % 30 === 0) buildPeriod(now);
+      }
 
-        document.getElementById('period1m').textContent = 'PERIOD NO: ' + periodNumber;
-        document.getElementById('timer1m').textContent = `SECONDS LEFT: ${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
-      }, 1000);
+      // Initialize VIP system
+      buildPeriod(getMMTime());
+      vipInterval = setInterval(vipTick, 1000);
     }
   </script>
 </body>
 </html>
+
